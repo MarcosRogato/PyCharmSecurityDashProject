@@ -1,0 +1,10 @@
+2024-01-15 08:23:11 INFO 192.168.1.1 Usuário admin fez login
+2024-01-15 08:25:43 ERROR 185.220.101.45 Falha na autenticação
+2024-01-15 08:26:01 WARNING 192.168.1.1 Tentativa de acesso negada
+2024-01-15 08:27:10 INFO 10.0.0.1 Backup iniciado
+2024-01-15 08:30:55 ERROR 45.33.32.156 Banco de dados indisponível
+2024-01-15 08:35:22 ERROR 185.220.101.45 Timeout na conexão
+2024-01-15 08:40:10 INFO 10.0.0.1 Usuário root fez logout
+2024-01-15 08:45:33 WARNING 203.0.113.42 Uso de CPU acima de 80%
+2024-01-15 08:50:17 ERROR 45.33.32.156 Falha ao gravar no disco
+2024-01-15 08:55:01 INFO 192.168.1.1 Serviço reiniciado com sucessodata

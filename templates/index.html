@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Security Dashboard</title>
+    <style>
+ body {
+        font-family: Arial, sans-serif;
+        background-color: #1a2416;
+        color: #c8d8b0;
+        padding: 30px;
+        margin: 0;
+    }
+
+    h1 {
+        color: #7ab648;
+        margin-bottom: 20px;
+        letter-spacing: 2px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #1f2d1a;
+    }
+
+    th {
+        background-color: #0d1a0d;
+        color: #7ab648;
+        padding: 12px;
+        text-align: left;
+        letter-spacing: 1px;
+
+    }
+
+    td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #2d4a20;
+        color: #c8d8b0;
+    }
+
+    tr:hover {
+        background-color: #2d4a20;
+    }
+.ERROR {
+    color: #ff6d6d;
+    font-weight: bold;
+}
+
+.WARNING {
+    color: #ffd166;
+    font-weight: bold;
+}
+
+.INFO {
+    color: #06d6a0;
+    font-weight: bold;
+}
+
+.btn    {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.btn-edit   {
+    background-color: #4a7c2f;
+    color: #c8d8b0;
+    margin-right: 5px;
+}
+
+.btn-edit:hover {
+    background-color: #7ab648;
+}
+
+.btn-delete {
+    background-color: #8b2020;
+    color: #c8d8b0;
+}
+
+.btn-delete:hover {
+    background-color: #ff6b6b;
+}
+   </style>
+</head>
+<body>
+<h1>Security Dashboard</h1>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Data</th>
+        <th>Hour</th>
+        <th>Type</th>
+        <th>IP</th>
+        <th>Message</th>
+        <th>Action</th>
+    </tr>
+ {% for log in logs %}
+<tr>
+    <td>{{ log[0] }}</td>
+    <td>{{ log[1] }}</td>
+    <td>{{ log[2] }}</td>
+    <td class="{{ log[3] }}">{{ log[3] }}</td>
+    <td>{{ log[4] }}</td>
+    <td>{{ log[5] }}</td>
+    <td>
+    <a href="/editar/{{ log[0] }}" class="btn btn-edit">Editar</a>
+    <a href="/deletar/{{ log[0] }}" class="btn btn-delete">Deletar</a>
+    </td>
+</tr>
+{% endfor %}
+</table>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
