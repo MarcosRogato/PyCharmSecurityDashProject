@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
     <title>Security Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
  body {
         font-family: Arial, sans-serif;
@@ -13,11 +14,26 @@
     }
 
     h1 {
-        color: #7ab648;
+            color: #7ab648;
         margin-bottom: 20px;
         letter-spacing: 2px;
     }
 
+    form {
+        margin-top: 30px;
+        background-color: #1f2d1a;
+        padding: 20px;
+        border-radius: 6px;
+}
+
+    input, select {
+        background-color: #1f2d1a;
+        color: #c8d8b0;
+        border: 1px solid #2d4a20;
+        padding: 8px;
+        margin: 5px 0 10px 0;
+        border-radius: 4px;
+}
     table {
         width: 100%;
         border-collapse: collapse;
@@ -42,7 +58,8 @@
     tr:hover {
         background-color: #2d4a20;
     }
-.ERROR {
+
+ .ERROR {
     color: #ff6d6d;
     font-weight: bold;
 }
@@ -84,10 +101,34 @@
 .btn-delete:hover {
     background-color: #ff6b6b;
 }
+
+.btn-insert {
+    background-color: #4a7c2f;
+    color: #c8d8b0;
+    margin-right: 5px;
+
+}
+
+ .btn-insert:hover {
+    background-color: #7ab648;
+}
    </style>
 </head>
 <body>
+<div class="page-header">
 <h1>Security Dashboard</h1>
+<a href="/logout" class="btn btn-delete">logout</a>
+</div>
+<form method="GET" action="/">
+    <select name="tipo" onchange="this.form.submit()">
+        <option value="">Todos</option>
+        <option value="ERROR" {% if tipo =='ERROR' %}selected{% endif %}>ERROR</option>
+        <option value="WARNING" {% if tipo =='WARNING' %}selected{% endif %}>WARNING</option>
+        <option value="INFO" {% if tipo =='INFO' %}selected{% endif %}>INFO</option>
+    </select>
+    <input type="text" name="ip" value="{{ ip }}" placeholder="Filtrar por IP">
+    <button type="submit" class="btn-insert">Buscar</button>
+</form>
 <table>
     <tr>
         <th>ID</th>
@@ -100,19 +141,64 @@
     </tr>
  {% for log in logs %}
 <tr>
-    <td>{{ log[0] }}</td>
-    <td>{{ log[1] }}</td>
-    <td>{{ log[2] }}</td>
-    <td class="{{ log[3] }}">{{ log[3] }}</td>
-    <td>{{ log[4] }}</td>
-    <td>{{ log[5] }}</td>
-    <td>
-    <a href="/editar/{{ log[0] }}" class="btn btn-edit">Editar</a>
-    <a href="/deletar/{{ log[0] }}" class="btn btn-delete">Deletar</a>
-    </td>
-</tr>
-{% endfor %}
-</table>
+        <td>{{ log[0] }}</td>
+        <td>{{ log[1] }}</td>
+        <td>{{ log[2] }}</td>
+        <td class="{{ log[3] }}">{{ log[3] }}</td>
+        <td>{{ log[4] }}</td>
+        <td>{{ log[5] }}</td>
+            <td>
+            <a href="/editar/{{ log[0] }}" class="btn btn-edit">Editar</a>
+            <a href="/deletar/{{ log[0] }}" class="btn btn-delete">Deletar</a>
+
+            </td>
+            </tr>
+            {% endfor %}
+            </table>
+    <form method="POST" action="/inserir">
+
+        <label>Data:</label>
+        <input type="text" name="date">
+
+        <label>Hora:</label>
+        <input type="text" name="hour">
+
+        <label>Tipo:</label>
+        <select name="type">
+            <option value="INFO">INFO</option>
+            <option value="WARNING">WARNING</option>
+            <option value="ERROR">ERROR</option>
+        </select>
+
+        <label>IP:</label>
+        <input type="text" name="ip">
+
+        <label>Mensagem:</label>
+        <input type="text" name="message">
+
+        <button type="submit" class="btn btn-insert">Inserir</button>
+
+    </form>
+<div style="max-width: 400px; margin-top: 30px;">
+    <canvas id="grafico"></canvas>
+</div>
+<script>
+    const contagem = {{ contagem | tojson }};
+    const labels = contagem.map(item => item[0]);
+    const valores = contagem.map(item => item[1]);
+
+    new Chart(document.getElementById('grafico'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Quantidade de logs',
+                data: valores,
+                backgroundColor: ['#06d6a0', '#ffd166', '#ff6d6d']
+            }]
+        }
+    });
+</script>
 
 </body>
 </html>
