@@ -384,9 +384,17 @@
             <div class="header-sub">SISTEMA DE MONITORAMENTO v2.0</div>
         </div>
         <div class="header-right">
-            <div class="status-pill"><span class="dot"></span>SISTEMA ONLINE</div>
-            <a href="/logout" class="btn-logout">&#9587; LOGOUT</a>
-        </div>
+    <div class="status-pill"><span class="dot"></span>SISTEMA ONLINE</div>
+
+    <form method="POST" action="/upload" enctype="multipart/form-data" style="display:inline-flex;align-items:center;">
+        <label for="arquivo" style="font-family:var(--mono);font-size:0.65rem;color:var(--gray);letter-spacing:1px;cursor:pointer;border:1px dashed rgba(57,240,217,0.25);padding:7px 14px;border-radius:4px;" id="file-label">&#8679; IMPORTAR</label>
+        <input type="file" name="arquivo" id="arquivo" accept=".log,.txt,.csv,.md" style="display:none;" onchange="document.getElementById('file-label').textContent='[ '+this.files[0].name+' ]';this.form.submit();">
+    </form>
+
+    <a href="/analisar" class="btn-logout" style="border-color:rgba(57,240,217,0.25);color:var(--teal);">&#9965; ANALISAR IA</a>
+
+    <a href="/logout" class="btn-logout">&#9587; LOGOUT</a>
+</div>
     </div>
 
     <!-- Filtros -->
@@ -520,6 +528,12 @@
         }
     });
 </script>
+{% if resultado %}
+<div style="margin-top:20px;background:var(--panel);backdrop-filter:blur(16px);border:1px solid rgba(57,240,217,0.15);border-radius:8px;overflow:hidden;">
+    <div style="padding:9px 16px;background:rgba(0,0,0,0.15);border-bottom:1px solid rgba(57,240,217,0.08);font-family:var(--mono);font-size:0.58rem;color:var(--teal);letter-spacing:2px;">// ANÁLISE DA IA — GROQ LLaMA</div>
+    <div style="padding:20px;font-family:var(--mono);font-size:0.78rem;line-height:1.9;color:rgba(255,255,255,0.8);white-space:pre-wrap;">{{ resultado }}</div>
+</div>
+{% endif %}
 </body>
 </html>
 

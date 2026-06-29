@@ -1,6 +1,9 @@
 from flask import Flask, render_template, redirect, request
-from database import criar_tabela, inserir_log, buscar_log, contar_logs_por_tipo,buscar_logs_por_tipo, buscar_logs_por_ip
+from database import criar_tabela, inserir_log, buscar_log, contar_logs_por_tipo, buscar_logs_por_tipo, buscar_logs_por_ip, importar_logs
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin
+from groq_analyzer import analisar_logs as groq_analisar
+
+
 
 app = Flask(__name__)
 app.secret_key = 'segredo123'
@@ -109,6 +112,24 @@ def atualizar(id):
     message = request.form['message']
     atualizar_log(id, date, hour, type, ip, message)
     return redirect('/')
+
+@app.route('/upload', methods=['POST'])
+@login_required
+def upload():
+    import os
+    arquivo = request.files['arquivo']
+    extensao = os.path.splitext(arquivo.filename)[1].lower()
+    if extensao not in ['.log', '.txt', '.md', '.csv']:
+        return redirect('/')
+    importar_logs(arquivo, extensao)
+    return redirect('/')
+
+@app.route('/analisar')
+@login_required
+def analisar():
+    logs = buscar_log()
+    resultado = groq_analisar(logs)
+    return render_template('index.html', logs=logs, contagem=contar_logs_por_tipo(), tipo='', ip='', resultado=resultado)
 
 if __name__ == "__main__":
     criar_tabela()

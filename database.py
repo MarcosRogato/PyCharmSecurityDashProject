@@ -1,4 +1,7 @@
 import sqlite3
+import csv
+import io
+
 
 def conectar():
     conn = sqlite3.connect('database.db')
@@ -122,3 +125,34 @@ def buscar_logs_por_ip(ip):
     logs = cursor.fetchall()
     conn.close()
     return logs
+
+def importar_logs(arquivo, extensao):
+    conn = conectar()
+    cursor = conn.cursor()
+
+    if extensao in ['.log', '.txt', '.md']:
+        for linha in arquivo:
+            linha = linha.decode('utf-8').strip()
+            partes = linha.split()
+            if not linha:
+                continue
+            date = partes[0]
+            hour = partes[1]
+            type = partes[2]
+            ip = partes[3]
+            message = " ".join(partes[4:])
+            cursor.execute('''INSERT INTO logs (date, hour, type, ip, message) 
+            VALUES(?, ?, ?, ?, ?) ''', (date, hour, type, ip, message))
+
+
+    elif extensao == '.csv':
+        conteudo = io.StringIO(arquivo.read().decode('utf-8'))
+        reader = csv.reader(conteudo)
+        for row in reader:
+            if len (row) < 5:
+                continue
+            cursor.execute('''INSERT INTO logs (date, hour, type, ip, message) 
+            VALUES(?, ?, ?, ?, ?) ''', (row[0], row[1], row[2], row[3], row[4]))
+
+    conn.commit()
+    conn.close()
