@@ -2,74 +2,294 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Dashboard | Autenticação</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Mono&family=Work+Sans:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
+        :root {
+            --teal:     #39F0D9;
+            --amber:    #FF9800;
+            --red:      #f44336;
+            --yellow:   #FFC107;
+            --bg1:      #2D3033;
+            --bg2:      #1E3B2C;
+            --panel-bg: rgba(45,48,51,0.10);
+            --border:   rgba(255,255,255,0.05);
+            --gray:     #607D8B;
+            --mono:     'Space Mono', monospace;
+            --head:     'Rajdhani', sans-serif;
+            --body:     'Work Sans', sans-serif;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
         body {
-            font-family: 'Courier New', monospace;
-            background: #0a0f0a;
+            font-family: var(--body);
+            background: linear-gradient(135deg, var(--bg1), var(--bg2));
+            color: #fff;
+            min-height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
             overflow: hidden;
+            transition: background 1s ease;
         }
-
-        canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            opacity: 0.05;
+        #bc { position:fixed; inset:0; z-index:0; pointer-events:none; opacity:0.22; }
+        .topo {
+            position:fixed; inset:0; z-index:0; pointer-events:none; opacity:0.4;
+            background-image: url('data:image/svg+xml,%3Csvg width="100%25" height="100%25" xmlns="http://www.w3.org/2000/svg"%3E%3Cdefs%3E%3Cpattern id="tp" patternUnits="userSpaceOnUse" width="200" height="200"%3E%3Cpath d="M0,100 Q50,50 100,100 Q150,150 200,100 M0,50 Q50,0 100,50 Q150,100 200,50 M0,150 Q50,100 100,150 Q150,200 200,150" fill="none" stroke="rgba(57,240,217,0.07)" stroke-width="0.5"/%3E%3C/pattern%3E%3C/defs%3E%3Crect width="100%25" height="100%25" fill="url(%23tp)"/%3E%3C/svg%3E');
         }
-
-        .login-box {
-            position: relative;
-            z-index: 1;
-            background: #0f1a0f;
-            padding: 40px;
-            border-radius: 6px;
-            border: 1px solid #2d4a20;
-            width: 380px;
-            box-shadow: 0 0 30px #00ff4122;
-        }
-
-        h1 {
-            color: #7ab648;
-            text-align: center;
-            letter-spacing: 4px;
-            margin-bottom: 30px;
-            text-transform: uppercase;
-            font-size: 1.4rem;
-        }
+        .grad { position:fixed; inset:0; z-index:0; pointer-events:none; background:radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(57,240,217,0.10), transparent 38%); }
+        body::after { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.02) 2px,rgba(0,0,0,0.02) 4px); pointer-events:none; z-index:999; }
+        .ping { position:fixed; border-radius:50%; border:1.5px solid var(--teal); transform:translate(-50%,-50%); animation:pingA 1s ease-out forwards; pointer-events:none; z-index:998; }
+        @keyframes pingA { 0%{width:0;height:0;opacity:.8;} 100%{width:120px;height:120px;opacity:0;} }
+        .wrap { position:relative; z-index:1; width:100%; max-width:520px; padding:0 1.5rem; }
+        .flavor { font-family:var(--mono); font-size:.6rem; letter-spacing:1.5px; color:var(--gray); display:flex; justify-content:space-between; margin-bottom:1.4rem; opacity:0; transform:translateY(-8px); animation:sld .6s .2s forwards; }
+        @keyframes sld { to { opacity:.6; transform:translateY(0); } }
+        .flavor .b::before { content:'> '; color:var(--teal); }
+        .panel { background:var(--panel-bg); backdrop-filter:blur(20px) contrast(120%); border:1px solid var(--border); box-shadow:0 4px 30px rgba(0,0,0,.20),0 0 50px rgba(57,240,217,.10),inset 0 0 15px rgba(57,240,217,.05); border-radius:10px; padding:2.5rem; position:relative; overflow:hidden; transition:box-shadow .8s,border-color .8s; }
+        .panel::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,.20),transparent); }
+        .scanner { position:absolute; left:0; width:100%; height:2px; background:linear-gradient(90deg,transparent,var(--teal),transparent); animation:scan 2.5s linear infinite; opacity:.5; pointer-events:none; transition:background .8s; }
+        @keyframes scan { 0%{top:0;opacity:0;} 5%{opacity:.5;} 95%{opacity:.5;} 100%{top:100%;opacity:0;} }
+        .stamp { position:absolute; top:1.1rem; right:1.2rem; font-family:var(--mono); font-size:.52rem; color:rgba(255,152,0,.28); border:1px solid rgba(255,152,0,.24); padding:.15rem .45rem; transform:rotate(12deg); letter-spacing:1px; pointer-events:none; transition:all .8s; }
+        .dots { position:absolute; top:1.2rem; left:1.5rem; display:flex; gap:5px; }
+        .dot { width:7px; height:7px; border-radius:50%; background:var(--teal); box-shadow:0 0 6px var(--teal); transition:all .4s; }
+        .dot.used { background:var(--red); box-shadow:0 0 6px var(--red); }
+        .title { font-family:var(--head); font-size:clamp(1.7rem,4vw,2.2rem); font-weight:700; line-height:1.1; margin-top:1.8rem; margin-bottom:.35rem; color:#fff; }
+        .title .accent { color:var(--teal); text-shadow:0 0 20px rgba(57,240,217,.4); }
+        .badge { display:inline-block; background:var(--amber); color:#1a1a1a; font-family:var(--mono); font-size:.62rem; font-weight:700; padding:.2rem .65rem; letter-spacing:1.5px; margin-bottom:1.8rem; margin-top:.4rem; transition:background .8s,color .8s; }
+        .err-flask { margin-bottom:1rem; padding:.65rem .9rem; font-family:var(--mono); font-size:.68rem; background:rgba(244,67,54,.08); border:1px solid rgba(244,67,54,.35); color:#ff6b6b; border-radius:4px; letter-spacing:.5px; }
+        .fg { margin-bottom:1.3rem; opacity:0; transform:translateY(8px); animation:fu .5s forwards; }
+        .fg:nth-child(1){animation-delay:.3s;} .fg:nth-child(2){animation-delay:.45s;} .fg:nth-child(3){animation-delay:.6s;}
+        @keyframes fu { to { opacity:1; transform:translateY(0); } }
+        label { display:block; font-family:var(--mono); font-size:.7rem; color:var(--gray); letter-spacing:1px; margin-bottom:.5rem; }
+        .iw { position:relative; }
+        .pfx { position:absolute; left:.8rem; top:50%; transform:translateY(-50%); font-family:var(--mono); font-size:1rem; color:var(--teal); opacity:.65; pointer-events:none; transition:color .8s; }
+        input[type=text], input[type=password] { width:100%; padding:.78rem 1rem .78rem 2rem; background:rgba(45,48,51,.35); border:1px solid rgba(96,125,139,.28); border-radius:5px; color:#fff; font-family:var(--body); font-size:.95rem; outline:none; transition:border-color .3s,box-shadow .3s; }
+        input:focus { border-color:var(--teal); background:rgba(45,48,51,.55); box-shadow:0 0 0 3px rgba(57,240,217,.09); }
+        input::placeholder { color:rgba(96,125,139,.5); font-size:.85rem; }
+        .btn { width:100%; padding:.85rem 1.5rem; background:rgba(57,240,217,.15); color:var(--teal); border:1px solid rgba(57,240,217,.30); border-radius:5px; font-family:var(--head); font-size:1.1rem; font-weight:600; letter-spacing:2px; text-transform:uppercase; cursor:pointer; position:relative; overflow:hidden; transition:all .3s ease; }
+        .btn-glow { position:absolute; inset:0; background:linear-gradient(45deg,var(--teal),transparent); opacity:0; transition:opacity .3s; }
+        .btn:hover .btn-glow { opacity:.12; }
+        .btn:hover { transform:translateY(-1px); box-shadow:0 0 20px rgba(57,240,217,.20); }
+        .inds { position:absolute; bottom:.8rem; right:.8rem; display:flex; gap:5px; }
+        .ind { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.2); transition:all .5s; }
+        .ind.on   { background:var(--teal);   box-shadow:0 0 6px var(--teal);   animation:bl 1.2s infinite; }
+        .ind.warn { background:var(--yellow); box-shadow:0 0 6px var(--yellow); animation:bl .6s infinite; }
+        .ind.dngr { background:var(--red);    box-shadow:0 0 6px var(--red);    animation:bl .3s infinite; }
+        @keyframes bl { 0%,100%{opacity:1;} 50%{opacity:.3;} }
+        .notif { margin-top:.8rem; padding:.65rem .9rem; font-family:var(--mono); font-size:.66rem; letter-spacing:.5px; border-radius:4px; display:none; animation:si .3s ease; }
+        @keyframes si { from{opacity:0;transform:translateY(-5px);} to{opacity:1;transform:translateY(0);} }
+        .notif.e { display:block; background:rgba(244,67,54,.08);  border:1px solid rgba(244,67,54,.3);  color:#ff6b6b; }
+        .notif.w { display:block; background:rgba(255,193,7,.08);  border:1px solid rgba(255,193,7,.3);  color:var(--yellow); }
+        .notif.c { display:block; background:rgba(244,67,54,.12);  border:1px solid rgba(244,67,54,.55); color:#ff3333; animation:cp 1s infinite; }
+        @keyframes cp { 0%,100%{border-color:rgba(244,67,54,.55);} 50%{border-color:rgba(244,67,54,1);} }
+        @keyframes shake { 10%,90%{transform:translate3d(-2px,0,0);} 20%,80%{transform:translate3d(3px,0,0);} 30%,50%,70%{transform:translate3d(-4px,0,0);} 40%,60%{transform:translate3d(4px,0,0);} }
+        .panel.shake { animation:shake .5s cubic-bezier(.36,.07,.19,.97) both; }
+        body.sw { background:linear-gradient(135deg,#2D2500,#3B2F00) !important; }
+        body.sw .panel { box-shadow:0 4px 30px rgba(255,193,7,.10),0 0 50px rgba(255,193,7,.07),inset 0 0 15px rgba(255,193,7,.03); border-color:rgba(255,193,7,.10); }
+        body.sw .scanner { background:linear-gradient(90deg,transparent,var(--yellow),transparent); }
+        body.sw .badge { background:var(--yellow); color:#1a1a1a; }
+        body.sw .pfx { color:var(--yellow); }
+        body.sw .btn { background:rgba(255,193,7,.15); color:var(--yellow); border-color:rgba(255,193,7,.3); }
+        body.sd { background:linear-gradient(135deg,#2D1010,#3B1A1A) !important; }
+        body.sd .panel { box-shadow:0 4px 30px rgba(244,67,54,.15),0 0 50px rgba(244,67,54,.09),inset 0 0 15px rgba(244,67,54,.04); border-color:rgba(244,67,54,.12); }
+        body.sd .scanner { background:linear-gradient(90deg,transparent,var(--red),transparent); animation-duration:1s; }
+        body.sd .badge { background:var(--red); color:#fff; }
+        body.sd .pfx { color:var(--red); }
+        body.sd .btn { background:rgba(244,67,54,.15); color:#ff6b6b; border-color:rgba(244,67,54,.35); }
+        .env { display:flex; justify-content:space-between; font-family:var(--mono); font-size:.58rem; margin-top:1.2rem; padding:.6rem .8rem; background:rgba(0,0,0,.15); border-top:1px solid rgba(57,240,217,.07); border-radius:0 0 4px 4px; color:var(--gray); }
+        .env .ok { color:var(--teal); }
+        .env .warn { color:var(--yellow); animation:bl 2s infinite; }
+        .foot { margin-top:.6rem; text-align:center; font-family:var(--mono); font-size:.56rem; color:var(--gray); opacity:.4; letter-spacing:1.5px; }
     </style>
 </head>
 <body>
-<canvas id="matrix"></canvas>
-<div class="login-box">
-    <h1>Login</h1>
 
-    {% if erro %}
-        <p style="color: red;">{{ erro }}</p>
-    {% endif %}
+<canvas id="bc"></canvas>
+<div class="topo"></div>
+<div class="grad"></div>
 
-    <form method="POST">
-        <div>
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
+<div class="wrap">
+    <div class="flavor">
+        <span class="b">SECURITY_DASHBOARD.SYS</span>
+        <span id="coords">-23.5437, -46.6294</span>
+        <span>MONITORAMENTO ATIVO</span>
+    </div>
+
+    <div class="panel" id="panel">
+        <div class="scanner"></div>
+        <div class="stamp" id="stamp">NÍVEL 3 CLEARANCE</div>
+        <div class="dots">
+            <div class="dot" id="d1"></div>
+            <div class="dot" id="d2"></div>
+            <div class="dot" id="d3"></div>
         </div>
 
-        <br>
+        <h1 class="title">Autenticação de<br><span class="accent">Operador</span></h1>
+        <div class="badge" id="badge">ACESSO RESTRITO</div>
 
-        <div>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
+        {% if erro %}
+        <div class="err-flask">&#9888; {{ erro }}</div>
+        {% endif %}
+
+        <form method="POST" id="frm">
+            <div class="fg">
+                <label>Identificação do Operador</label>
+                <div class="iw">
+                    <span class="pfx">&#8250;</span>
+                    <input type="text" name="username" placeholder="usuario@sistema" autocomplete="off" required>
+                </div>
+            </div>
+            <div class="fg">
+                <label>Código de Acesso</label>
+                <div class="iw">
+                    <span class="pfx">#</span>
+                    <input type="password" name="password" placeholder="clearance code" required>
+                </div>
+            </div>
+            <div class="fg">
+                <button type="submit" class="btn" id="authBtn">
+                    <span class="btn-glow"></span>
+                    <span>Autenticar</span>
+                    <div class="inds">
+                        <div class="ind on" id="i1"></div>
+                        <div class="ind on" id="i2"></div>
+                        <div class="ind on" id="i3"></div>
+                    </div>
+                </button>
+                <div class="notif" id="notif"></div>
+            </div>
+        </form>
+
+        <div class="env">
+            <span><span class="ok">&#9679;</span> SAT UPLINK: ONLINE</span>
+            <span><span class="ok">&#9679;</span> FIREWALL: ATIVO</span>
+            <span><span class="warn">&#9670;</span> PERÍMETRO: <span id="pval">SEGURO</span></span>
         </div>
+    </div>
 
-        <br>
-
-        <button type="submit">Entrar</button>
-    </form>
+    <div class="foot">SECURITY DASHBOARD &middot; CONFIDENCIAL &middot; APENAS OPERADORES AUTORIZADOS</div>
 </div>
+
+<script>
+(function(){
+    var c=document.getElementById('bc'),x=c.getContext('2d');
+    function resize(){ c.width=window.innerWidth; c.height=window.innerHeight; }
+    resize();
+    window.addEventListener('resize', resize);
+
+    var FS = 16; // font size / column width
+    var cols, drops, speeds;
+
+    function init(){
+        cols = Math.floor(c.width / FS);
+        drops = [];
+        speeds = [];
+        for(var i=0;i<cols;i++){
+            drops[i]  = Math.random() * -c.height; // começa acima da tela em posições aleatórias
+            speeds[i] = 0.8 + Math.random() * 2.2; // velocidade diferente por coluna
+        }
+    }
+    init();
+    window.addEventListener('resize', init);
+
+    function draw(){
+        // Fundo semi-transparente cria o rastro de desvanecimento
+        x.fillStyle = 'rgba(30, 40, 30, 0.10)';
+        x.fillRect(0, 0, c.width, c.height);
+
+        x.font = 'bold ' + FS + 'px Space Mono, monospace';
+
+        for(var i=0;i<cols;i++){
+            var y = drops[i];
+
+            // Dígito da cabeça — mais brilhante
+            x.fillStyle = 'rgba(200, 255, 245, 0.85)';
+            x.fillText(Math.random() > 0.5 ? '1' : '0', i * FS, y);
+
+            // Dígitos do rastro — mais suaves
+            x.fillStyle = 'rgba(57, 240, 217, 0.30)';
+            for(var t=1; t<=6; t++){
+                var ty = y - t * FS;
+                if(ty > 0){
+                    var a = 0.30 - t * 0.04;
+                    x.fillStyle = 'rgba(57,240,217,' + Math.max(a,0) + ')';
+                    x.fillText(Math.random() > 0.5 ? '1' : '0', i * FS, ty);
+                }
+            }
+
+            // Avança a gota
+            drops[i] += speeds[i] * FS * 0.06;
+
+            // Reseta quando sai da tela (com delay aleatório)
+            if(drops[i] > c.height + FS * 8 && Math.random() > 0.96){
+                drops[i] = -FS * (2 + Math.random() * 10);
+                speeds[i] = 0.8 + Math.random() * 2.2;
+            }
+        }
+        requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+})();
+
+document.addEventListener('mousemove',function(e){
+    document.documentElement.style.setProperty('--mx',(e.clientX/window.innerWidth*100).toFixed(1)+'%');
+    document.documentElement.style.setProperty('--my',(e.clientY/window.innerHeight*100).toFixed(1)+'%');
+});
+
+document.addEventListener('click',function(e){
+    var p=document.createElement('div');p.className='ping';p.style.left=e.clientX+'px';p.style.top=e.clientY+'px';
+    document.body.appendChild(p);setTimeout(function(){p.remove();},1000);
+});
+
+var cEl=document.getElementById('coords');
+setInterval(function(){
+    var lat=(-23.54+(Math.random()-.5)*.008).toFixed(4);
+    var lon=(-46.63+(Math.random()-.5)*.008).toFixed(4);
+    cEl.textContent=lat+', '+lon;
+},5000+Math.random()*3000);
+
+var pEl=document.getElementById('pval');
+var pV=['SEGURO','SEGURO','SEGURO','ATENÇÃO','MONITORANDO'];
+setInterval(function(){pEl.textContent=pV[Math.floor(Math.random()*pV.length)];},9000+Math.random()*4000);
+
+var panel=document.getElementById('panel');
+var notif=document.getElementById('notif');
+var dots=[document.getElementById('d1'),document.getElementById('d2'),document.getElementById('d3')];
+var inds=[document.getElementById('i1'),document.getElementById('i2'),document.getElementById('i3')];
+var badge=document.getElementById('badge');
+var stamp=document.getElementById('stamp');
+var att=0,MAX=3;
+
+function applyState(){
+    if(dots[att-1])dots[att-1].classList.add('used');
+    panel.classList.add('shake');setTimeout(function(){panel.classList.remove('shake');},600);
+    document.body.classList.remove('sw','sd');
+    if(att===2){
+        document.body.classList.add('sw');inds[0].className='ind warn';
+        notif.textContent='⚠ ALERTA: Credencial inválida. 1 tentativa restante.';notif.className='notif w';
+    } else if(att>=MAX){
+        document.body.classList.add('sd');inds.forEach(function(i){i.className='ind dngr';});
+        stamp.textContent='ACESSO BLOQUEADO';badge.textContent='PROTOCOLO DE SEGURANÇA ATIVO';
+        notif.textContent='⚠ CRÍTICO: Acesso bloqueado. Contate o administrador.';notif.className='notif c';
+    } else {
+        notif.textContent='⚠ FALHA: Credenciais inválidas. '+(MAX-att)+' tentativas restantes.';notif.className='notif e';
+    }
+}
+
+var flaskErr=document.querySelector('.err-flask');
+if(flaskErr){att=1;applyState();}
+
+document.getElementById('frm').addEventListener('submit',function(){
+    document.getElementById('authBtn').style.opacity='0.6';
+});
+
+document.querySelectorAll('label').forEach(function(l){
+    var t=l.textContent;l.textContent='';var i=0;
+    var iv=setInterval(function(){l.textContent+=t[i++];if(i>=t.length)clearInterval(iv);},40+Math.random()*15);
+});
+</script>
+
 </body>
 </html>
